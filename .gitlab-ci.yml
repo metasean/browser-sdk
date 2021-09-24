@@ -377,7 +377,7 @@ merge-into-staging:
   image: $CI_IMAGE
   only:
     refs:
-      - main
+      - aymeric/implement-merge-into-staging-job
   except:
     refs:
       - schedules
