@@ -189,6 +189,9 @@ export interface RumContext {
       plan: RumSessionPlan
     }
   }
+  civisibility?: {
+    test_execution_id: string
+  }
 }
 
 export interface ViewContext extends Context {
