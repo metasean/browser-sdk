@@ -34,7 +34,7 @@ import { UrlContexts } from './urlContexts'
 enum SessionType {
   SYNTHETICS = 'synthetics',
   USER = 'user',
-  CITEST = 'ci-test',
+  CI_TEST = 'ci-test',
 }
 
 const VIEW_EVENTS_MODIFIABLE_FIELD_PATHS = [
@@ -75,7 +75,7 @@ export function startRumAssembly(
   }
 
   const syntheticsContext = getSyntheticsContext()
-  const ciContext = getCITestContext()
+  const ciContext = getCiTestContext()
 
   lifeCycle.subscribe(
     LifeCycleEventType.RAW_RUM_EVENT_COLLECTED,
@@ -102,7 +102,7 @@ export function startRumAssembly(
             type: syntheticsContext ? SessionType.SYNTHETICS : ciContext ? SessionType.CITEST : SessionType.USER,
           },
           synthetics: syntheticsContext,
-          civisibility: ciContext,
+          ci_visibility: ciContext,
         }
         const serverRumEvent = (needToAssembleWithAction(rawRumEvent)
           ? combine(rumContext, urlContext, viewContext, actionContext, rawRumEvent)
