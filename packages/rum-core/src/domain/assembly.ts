@@ -99,7 +99,7 @@ export function startRumAssembly(
           date: timeStampNow(),
           service: configuration.service,
           session: {
-            type: syntheticsContext ? SessionType.SYNTHETICS : ciContext ? SessionType.CITEST : SessionType.USER,
+            type: syntheticsContext ? SessionType.SYNTHETICS : ciContext ? SessionType.CI_TEST : SessionType.USER,
           },
           synthetics: syntheticsContext,
           ci_visibility: ciContext,
