@@ -25,7 +25,7 @@ import {
 } from '../rawRumEvent.types'
 import { RumEvent } from '../rumEvent.types'
 import { getSyntheticsContext } from './syntheticsContext'
-import { getCITestContext } from './ciTestContext'
+import { getCiTestContext } from './ciTestContext'
 import { LifeCycle, LifeCycleEventType } from './lifeCycle'
 import { ParentContexts } from './parentContexts'
 import { RumSession, RumSessionPlan } from './rumSession'
