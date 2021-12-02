@@ -663,7 +663,7 @@ export interface CommonProperties {
     /**
      * Type of the session
      */
-    readonly type: 'user' | 'synthetics'
+    readonly type: 'user' | 'synthetics' | 'ci-test'
     /**
      * Whether this session has a replay
      */
@@ -761,6 +761,15 @@ export interface CommonProperties {
      */
     readonly result_id: string
     [k: string]: unknown
+  }
+  /**
+   * CI Visibility properties
+   */
+  readonly ci_visibility?: {
+    /**
+     * The identifier of the current CI Visibility test execution
+     */
+    readonly test_execution_id: string
   }
   /**
    * Internal properties
