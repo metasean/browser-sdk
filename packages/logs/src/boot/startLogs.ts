@@ -19,7 +19,7 @@ import {
 } from '@datadog/browser-core'
 import { trackNetworkError } from '../domain/trackNetworkError'
 import { Logger, LogsMessage, StatusType } from '../domain/logger'
-import { LoggerSession, startLoggerSession } from '../domain/loggerSession'
+import { LogsSessionManager, startLogsSessionManagement } from '../domain/logsSessionManager'
 import { LogsEvent } from '../logsEvent.types'
 import { buildEnv } from './buildEnv'
 
@@ -38,24 +38,24 @@ export function startLogs(initConfiguration: LogsInitConfiguration, errorLogger:
     trackNetworkError(configuration, errorObservable)
   }
 
-  const session = startLoggerSession(configuration, areCookiesAuthorized(configuration.cookieOptions))
-  return doStartLogs(configuration, errorObservable, internalMonitoring, session, errorLogger)
+  const sessionManager = startLogsSessionManagement(configuration, areCookiesAuthorized(configuration.cookieOptions))
+  return doStartLogs(configuration, errorObservable, internalMonitoring, sessionManager, errorLogger)
 }
 
 export function doStartLogs(
   configuration: Configuration,
   errorObservable: Observable<RawError>,
   internalMonitoring: InternalMonitoring,
-  session: LoggerSession,
+  sessionManager: LogsSessionManager,
   errorLogger: Logger
 ) {
   internalMonitoring.setExternalContextProvider(() =>
-    combine({ session_id: session.getId() }, getRUMInternalContext(), {
+    combine({ session_id: sessionManager.getId() }, getRUMInternalContext(), {
       view: { name: null, url: null, referrer: null },
     })
   )
 
-  const assemble = buildAssemble(session, configuration, reportError)
+  const assemble = buildAssemble(sessionManager, configuration, reportError)
   const batch = startLoggerBatch(configuration)
 
   function reportError(error: RawError) {
@@ -121,18 +121,18 @@ function startLoggerBatch(configuration: Configuration) {
 }
 
 export function buildAssemble(
-  session: LoggerSession,
+  sessionManager: LogsSessionManager,
   configuration: Configuration,
   reportError: (error: RawError) => void
 ) {
   const errorRateLimiter = createEventRateLimiter(StatusType.error, configuration.maxErrorsPerMinute, reportError)
   return (message: LogsMessage, currentContext: Context) => {
     const startTime = message.date ? getRelativeTime(message.date) : undefined
-    if (!session.isTracked(startTime)) {
+    if (!sessionManager.isTracked(startTime)) {
       return undefined
     }
     const contextualizedMessage = combine(
-      { service: configuration.service, session_id: session.getId() },
+      { service: configuration.service, session_id: sessionManager.getId() },
       currentContext,
       getRUMInternalContext(startTime),
       message
