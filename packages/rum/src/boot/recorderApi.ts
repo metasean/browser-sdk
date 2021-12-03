@@ -10,7 +10,7 @@ import {
   RumInitConfiguration,
   LifeCycle,
   ParentContexts,
-  RumSession,
+  RumSessionManager,
   RecorderApi,
 } from '@datadog/browser-rum-core'
 import { getReplayStats } from '../domain/replayStats'
@@ -79,7 +79,7 @@ export function makeRecorderApi(
       lifeCycle: LifeCycle,
       initConfiguration: RumInitConfiguration,
       configuration: Configuration,
-      session: RumSession,
+      sessionManager: RumSessionManager,
       parentContexts: ParentContexts
     ) => {
       lifeCycle.subscribe(LifeCycleEventType.SESSION_EXPIRED, () => {
@@ -96,7 +96,7 @@ export function makeRecorderApi(
       })
 
       startStrategy = () => {
-        if (!session.hasReplayPlan()) {
+        if (!sessionManager.hasReplayPlan()) {
           state = { status: RecorderStatus.IntentToStart }
           return
         }
@@ -128,7 +128,7 @@ export function makeRecorderApi(
               lifeCycle,
               initConfiguration.applicationId,
               configuration,
-              session,
+              sessionManager,
               parentContexts,
               worker
             )
