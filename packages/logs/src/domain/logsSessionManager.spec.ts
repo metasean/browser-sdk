@@ -81,25 +81,40 @@ describe('logger session', () => {
     expect(getCookie(SESSION_COOKIE_NAME)).toContain(`${LOGS_SESSION_KEY}=${LoggerTrackingType.TRACKED}`)
   })
 
-  it('when no cookies available, isTracked is computed at each call and getId is undefined', () => {
+  it('when no cookies available, isTracked is computed at each init and getId is undefined', () => {
     const sessionManager = startLogsSessionManagement(configuration as Configuration, false)
 
-    expect(sessionManager.getId()).toBeUndefined()
-    expect(sessionManager.isTracked()).toMatch(/true|false/)
+    expect(sessionManager.findSession()!.id).toBeUndefined()
   })
 
-  it('should get session from history', () => {
-    const sessionManager = startLogsSessionManagement(configuration as Configuration, true)
+  describe('findSession', () => {
+    it('should return the current session', () => {
+      setCookie(SESSION_COOKIE_NAME, 'id=abcdef&logs=1', DURATION)
+      const logsSessionManager = startLogsSessionManagement(configuration as Configuration, true)
+      expect(logsSessionManager.findSession()!.id).toBe('abcdef')
+    })
 
-    clock.tick(10 * ONE_SECOND)
+    it('should return undefined if the session is not tracked', () => {
+      setCookie(SESSION_COOKIE_NAME, 'id=abcdef&logs=0', DURATION)
+      const logsSessionManager = startLogsSessionManagement(configuration as Configuration, true)
+      expect(logsSessionManager.findSession()).toBe(undefined)
+    })
 
-    setCookie(SESSION_COOKIE_NAME, '', DURATION)
-    clock.tick(COOKIE_ACCESS_DELAY)
+    it('should return undefined if the session has expired', () => {
+      const logsSessionManager = startLogsSessionManagement(configuration as Configuration, true)
+      setCookie(SESSION_COOKIE_NAME, '', DURATION)
+      clock.tick(COOKIE_ACCESS_DELAY)
+      expect(logsSessionManager.findSession()).toBe(undefined)
+    })
 
-    expect(sessionManager.getId()).toBeUndefined()
-    expect(sessionManager.isTracked()).toBe(false)
-
-    expect(sessionManager.getId(ONE_SECOND as RelativeTime)).toBeDefined()
-    expect(sessionManager.isTracked(ONE_SECOND as RelativeTime)).toBe(true)
+    it('should return session corresponding to start time', () => {
+      setCookie(SESSION_COOKIE_NAME, 'id=abcdef&logs=1', DURATION)
+      const logsSessionManager = startLogsSessionManagement(configuration as Configuration, true)
+      clock.tick(10 * ONE_SECOND)
+      setCookie(SESSION_COOKIE_NAME, '', DURATION)
+      clock.tick(COOKIE_ACCESS_DELAY)
+      expect(logsSessionManager.findSession()).toBeUndefined()
+      expect(logsSessionManager.findSession(0 as RelativeTime)!.id).toBe('abcdef')
+    })
   })
 })

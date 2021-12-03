@@ -3,8 +3,11 @@ import { Configuration, performDraw, startSessionManagement, RelativeTime } from
 export const LOGS_SESSION_KEY = 'logs'
 
 export interface LogsSessionManager {
-  getId: (startTime?: RelativeTime) => string | undefined
-  isTracked: (startTime?: RelativeTime) => boolean
+  findSession: (startTime?: RelativeTime) => LogsSession | undefined
+}
+
+export type LogsSession = {
+  id?: string // session can be tracked without id
 }
 
 export enum LoggerTrackingType {
@@ -18,17 +21,23 @@ export function startLogsSessionManagement(
 ): LogsSessionManager {
   if (!areCookieAuthorized) {
     const isTracked = computeTrackingType(configuration) === LoggerTrackingType.TRACKED
+    const session = isTracked ? {} : undefined
     return {
-      getId: () => undefined,
-      isTracked: () => isTracked,
+      findSession: () => session,
     }
   }
   const sessionManager = startSessionManagement(configuration.cookieOptions, LOGS_SESSION_KEY, (rawTrackingType) =>
     computeSessionState(configuration, rawTrackingType)
   )
   return {
-    getId: (startTime) => sessionManager.findSession(startTime)?.id,
-    isTracked: (startTime) => sessionManager.findSession(startTime)?.trackingType === LoggerTrackingType.TRACKED,
+    findSession: (startTime) => {
+      const session = sessionManager.findSession(startTime)
+      return session && session.trackingType === LoggerTrackingType.TRACKED
+        ? {
+            id: session.id,
+          }
+        : undefined
+    },
   }
 }
 
