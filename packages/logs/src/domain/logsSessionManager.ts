@@ -12,7 +12,10 @@ export enum LoggerTrackingType {
   TRACKED = '1',
 }
 
-export function startLogsSessionManagement(configuration: Configuration, areCookieAuthorized: boolean): LogsSessionManager {
+export function startLogsSessionManagement(
+  configuration: Configuration,
+  areCookieAuthorized: boolean
+): LogsSessionManager {
   if (!areCookieAuthorized) {
     const isTracked = computeTrackingType(configuration) === LoggerTrackingType.TRACKED
     return {
@@ -20,12 +23,12 @@ export function startLogsSessionManagement(configuration: Configuration, areCook
       isTracked: () => isTracked,
     }
   }
-  const session = startSessionManagement(configuration.cookieOptions, LOGS_SESSION_KEY, (rawTrackingType) =>
+  const sessionManager = startSessionManagement(configuration.cookieOptions, LOGS_SESSION_KEY, (rawTrackingType) =>
     computeSessionState(configuration, rawTrackingType)
   )
   return {
-    getId: session.getId,
-    isTracked: (startTime) => session.getTrackingType(startTime) === LoggerTrackingType.TRACKED,
+    getId: sessionManager.getId,
+    isTracked: (startTime) => sessionManager.getTrackingType(startTime) === LoggerTrackingType.TRACKED,
   }
 }
 
