@@ -1,4 +1,4 @@
-import { Configuration, performDraw, startSessionManagement, RelativeTime } from '@datadog/browser-core'
+import { Configuration, performDraw, startSessionManager, RelativeTime } from '@datadog/browser-core'
 
 export const LOGS_SESSION_KEY = 'logs'
 
@@ -15,7 +15,7 @@ export enum LoggerTrackingType {
   TRACKED = '1',
 }
 
-export function startLogsSessionManagement(
+export function startLogsSessionManager(
   configuration: Configuration,
   areCookieAuthorized: boolean
 ): LogsSessionManager {
@@ -26,7 +26,7 @@ export function startLogsSessionManagement(
       findSession: () => session,
     }
   }
-  const sessionManager = startSessionManagement(configuration.cookieOptions, LOGS_SESSION_KEY, (rawTrackingType) =>
+  const sessionManager = startSessionManager(configuration.cookieOptions, LOGS_SESSION_KEY, (rawTrackingType) =>
     computeSessionState(configuration, rawTrackingType)
   )
   return {
