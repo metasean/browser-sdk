@@ -189,7 +189,7 @@ export interface RumContext {
       plan: RumSessionPlan
     }
   }
-  ci_visibility?: {
+  ci_test?: {
     test_execution_id: string
   }
 }

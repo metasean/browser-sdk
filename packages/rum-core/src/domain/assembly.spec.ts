@@ -589,7 +589,7 @@ describe('rum assembly', () => {
         rawRumEvent: createRawRumEvent(RumEventType.VIEW),
       })
 
-      expect(serverRumEvents[0].ci_visibility).toBeTruthy()
+      expect(serverRumEvents[0].ci_test).toBeTruthy()
     })
   })
 
